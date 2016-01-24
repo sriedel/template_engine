@@ -107,6 +107,10 @@ defmodule TemplateEngineSpec do
       it do: evaluate( "{{{2}}}", [] ) |> should( eq "null" )
       it do: evaluate( "{{{0.foo.1.bar}}}", [ %{ "foo" => [ 0, %{"bar" => "baz"}, 2 ] } ] ) |> should( eq "baz" )
     end
+
+    context "when matching with \\. escape sequences" do
+      it do: evaluate( "{{{foo\\.bar}}}", %{ "foo" => %{ "bar" => "baz" }, "foo.bar" => "quux" } ) |> should( eq "quux" )
+    end
   end
 
   describe "split_and_unescape" do
