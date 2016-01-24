@@ -1,5 +1,5 @@
 defmodule TemplateEngineSpec do
-  use ESpec
+  use ESpec, async: true
   import TemplateEngine
 
   describe "evaluate" do

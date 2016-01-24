@@ -9,30 +9,31 @@ defmodule TemplateEngine do
 
   defp evaluate_match( "\\{", _value_name, _map ), do: "{"
   defp evaluate_match( <<"{{{"::utf8, _something::binary>>, value_name, map ) do
-    extract_value_of( value_name, map )
+    dig( map, expand_value_name( value_name ) )
   end
 
-  defp extract_value_of( value_name, map ) when is_map( map ) do
-    case String.split( value_name, ".", parts: 2 ) do
-      [ key ] -> 
-        if not Map.has_key?( map, key ) do
-          ""
-        else
-          if map[value_name] == nil do
-            "null"
-          else
-            map[value_name] |> to_string
-          end
-        end
+  defp expand_value_name( value_name ) do
+    String.split( value_name, "." )
+  end
 
-      [ key, child_keys ] ->
-        if not Map.has_key?( map, key ) do
-          ""
-        else
-          extract_value_of( child_keys, map[key] )
-        end
+  defp dig( map, [] ), do: to_string( map )
+
+  defp dig( map, _value_name_list = [h|t] ) when is_map( map ) do
+    case Map.fetch( map, h ) do
+      { :ok, nil } -> "null"
+      { :ok, val } -> dig( val, t )
+      :error -> ""
     end
   end
-  defp extract_value_of( _value_name, _map ), do: "null"
+
+  defp dig( map, _value_name_list = [h|t] ) when is_list( map ) do
+    case Enum.fetch( map, String.to_integer( h ) ) do
+      { :ok, nil } -> "null"
+      { :ok, val } -> dig( val, t )
+      :error -> "" #FIXME: Make this undefined
+    end
+  end
+
+  defp dig( _map, _value_name_list ), do: "null" #FIXME: undefined?
 
 end
