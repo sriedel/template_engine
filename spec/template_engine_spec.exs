@@ -100,6 +100,13 @@ defmodule TemplateEngineSpec do
       it do: evaluate( "{{{top.middle.bottom}}}", %{"top" => %{ "middle" => "foo" } } )
              |> should( eq "null" )
     end
+
+    context "when matching within arrays" do
+      it do: evaluate( "{{{2}}}", ~w( a b c d ) ) |> should( eq "c" )
+      it do: evaluate( "{{{2}}}", %{ "2" => "x" } ) |> should( eq "x" )
+      it do: evaluate( "{{{2}}}", [] ) |> should( eq "null" )
+      it do: evaluate( "{{{0.foo.1.bar}}}", [ %{ "foo" => [ 0, %{"bar" => "baz"}, 2 ] } ] ) |> should( eq "baz" )
+    end
   end
 
   describe "split_and_unescape" do
