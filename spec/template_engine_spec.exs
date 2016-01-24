@@ -30,7 +30,7 @@ defmodule TemplateEngineSpec do
     context "when passed a string with one interpolation" do
       context "and the string does not contain an escaped {" do
         context "and the value map does not contain a key for the value name" do
-          it do: evaluate( "foo {{{bar}}} baz", %{} ) |> should( eq "foo  baz" )
+          it do: evaluate( "foo {{{bar}}} baz", %{} ) |> should( eq "foo null baz" )
         end
 
         context "and the value map contains a key for the value name" do
@@ -58,7 +58,7 @@ defmodule TemplateEngineSpec do
 
       context "and the string contains an escaped {" do
         context "and the value map does not contain a key for the value name" do
-          it do: evaluate( "foo {{{bar}}} \\{\\{\\{baz}}}", %{} ) |> should( eq "foo  {{{baz}}}" )
+          it do: evaluate( "foo {{{bar}}} \\{\\{\\{baz}}}", %{} ) |> should( eq "foo null {{{baz}}}" )
         end
 
         context "and the value map contains a key for the value name" do
@@ -95,7 +95,7 @@ defmodule TemplateEngineSpec do
       let :map, do: %{ "top" => %{ "middle" => %{ "bottom" => "foo" } } }
       it do: evaluate( "{{{top.middle.bottom}}}", map ) |> should( eq "foo" )
 
-      it do: evaluate( "{{{top.middle.i_dont_exist}}}", map ) |> should( eq "" )
+      it do: evaluate( "{{{top.middle.i_dont_exist}}}", map ) |> should( eq "null" )
 
       it do: evaluate( "{{{top.middle.bottom}}}", %{"top" => %{ "middle" => "foo" } } )
              |> should( eq "null" )
