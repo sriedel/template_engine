@@ -13,17 +13,17 @@ defmodule TemplateEngine do
   end
 
   def split_and_unescape( string ), do: split_and_unescape( string, "", [] )
-  def split_and_unescape( "", "", acc ), do: Enum.reverse( acc )
-  def split_and_unescape( "", current_value, acc ) do
+  defp split_and_unescape( "", "", acc ), do: Enum.reverse( acc )
+  defp split_and_unescape( "", current_value, acc ) do
     split_and_unescape( "", "", [ String.reverse( current_value ) | acc ] )
   end
-  def split_and_unescape( <<"\\.", string::binary>>, current_value, acc ) do
+  defp split_and_unescape( <<"\\.", string::binary>>, current_value, acc ) do
     split_and_unescape( string, "." <> current_value, acc )
   end
-  def split_and_unescape( <<".", string::binary>>, current_value, acc ) do
+  defp split_and_unescape( <<".", string::binary>>, current_value, acc ) do
     split_and_unescape( string, "", [ String.reverse( current_value ) | acc ] )
   end
-  def split_and_unescape( <<char::utf8, string::binary>>, current_value, acc ) do
+  defp split_and_unescape( <<char::utf8, string::binary>>, current_value, acc ) do
     split_and_unescape( string, <<char::utf8, current_value::binary>>, acc )
   end
 
