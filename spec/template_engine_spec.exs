@@ -101,4 +101,13 @@ defmodule TemplateEngineSpec do
              |> should( eq "null" )
     end
   end
+
+  describe "split_and_unescape" do
+    it do: split_and_unescape( "" ) |> should( eq [] )
+    it do: split_and_unescape( "foo" ) |> should( eq [ "foo" ] )
+    it do: split_and_unescape( "foo.bar" ) |> should( eq [ "foo", "bar" ] )
+    it do: split_and_unescape( "foo..bar" ) |> should( eq [ "foo", "", "bar" ] )
+    it do: split_and_unescape( "foo\\.bar" ) |> should( eq [ "foo.bar" ] )
+    it do: split_and_unescape( "foo.bar\\.baz.quux" ) |> should( eq [ "foo", "bar.baz", "quux" ] )
+  end
 end
