@@ -35,7 +35,7 @@ defmodule TemplateEngineSpec do
 
         context "and the value map contains a key for the value name" do
           context "for a string value" do
-            it do: evaluate( "{{{val}}}", %{"val" => "ue"} ) |> should( eq "ue" )
+            it do: evaluate( "{{{val}}}", %{"val" => "ue"} ) |> should( eq "\"ue\"" )
           end
 
           context "for an integer value" do
@@ -51,7 +51,7 @@ defmodule TemplateEngineSpec do
           end
 
           context "for a string value containing a \{ escape sequence" do
-            it do: evaluate( "{{{val}}}", %{"val" => "\\{"} ) |> should( eq "\\{" )
+            it do: evaluate( "{{{val}}}", %{"val" => "\\{"} ) |> should( eq "\"\\{\"" )
           end
         end
       end
@@ -63,7 +63,7 @@ defmodule TemplateEngineSpec do
 
         context "and the value map contains a key for the value name" do
           context "for a string value" do
-            it do: evaluate( "{{{val}}}\\{\\{\\{foo}}}", %{"val" => "ue"} ) |> should( eq "ue{{{foo}}}" )
+            it do: evaluate( "{{{val}}}\\{\\{\\{foo}}}", %{"val" => "ue"} ) |> should( eq "\"ue\"{{{foo}}}" )
           end
 
           context "for an integer value" do
@@ -79,7 +79,7 @@ defmodule TemplateEngineSpec do
           end
 
           context "for a string value containing a \{ escape sequence" do
-            it do: evaluate( "{{{val}}}\\{\\{\\{foo}}}", %{"val" => "\\{"} ) |> should( eq "\\{{{{foo}}}" )
+            it do: evaluate( "{{{val}}}\\{\\{\\{foo}}}", %{"val" => "\\{"} ) |> should( eq "\"\\{\"{{{foo}}}" )
           end
         end
       end
@@ -88,12 +88,12 @@ defmodule TemplateEngineSpec do
     context "when passed a string with multiple interpolations" do
       it do: evaluate( "{{{integer}}} {{{string}}} \\{{{escaped}}} {{{float}}}",
                        %{ "integer" => 3, "string" => "hello", "float" => 3.14 } )
-             |> should( eq "3 hello {{{escaped}}} 3.14" )
+             |> should( eq "3 \"hello\" {{{escaped}}} 3.14" )
     end
 
     context "when matching a nested value" do
       let :map, do: %{ "top" => %{ "middle" => %{ "bottom" => "foo" } } }
-      it do: evaluate( "{{{top.middle.bottom}}}", map ) |> should( eq "foo" )
+      it do: evaluate( "{{{top.middle.bottom}}}", map ) |> should( eq "\"foo\"" )
 
       it do: evaluate( "{{{top.middle.i_dont_exist}}}", map ) |> should( eq "null" )
 
@@ -102,14 +102,14 @@ defmodule TemplateEngineSpec do
     end
 
     context "when matching within arrays" do
-      it do: evaluate( "{{{2}}}", ~w( a b c d ) ) |> should( eq "c" )
-      it do: evaluate( "{{{2}}}", %{ "2" => "x" } ) |> should( eq "x" )
+      it do: evaluate( "{{{2}}}", ~w( a b c d ) ) |> should( eq "\"c\"" )
+      it do: evaluate( "{{{2}}}", %{ "2" => "x" } ) |> should( eq "\"x\"" )
       it do: evaluate( "{{{2}}}", [] ) |> should( eq "null" )
-      it do: evaluate( "{{{0.foo.1.bar}}}", [ %{ "foo" => [ 0, %{"bar" => "baz"}, 2 ] } ] ) |> should( eq "baz" )
+      it do: evaluate( "{{{0.foo.1.bar}}}", [ %{ "foo" => [ 0, %{"bar" => "baz"}, 2 ] } ] ) |> should( eq "\"baz\"" )
     end
 
     context "when matching with \\. escape sequences" do
-      it do: evaluate( "{{{foo\\.bar}}}", %{ "foo" => %{ "bar" => "baz" }, "foo.bar" => "quux" } ) |> should( eq "quux" )
+      it do: evaluate( "{{{foo\\.bar}}}", %{ "foo" => %{ "bar" => "baz" }, "foo.bar" => "quux" } ) |> should( eq "\"quux\"" )
     end
   end
 

@@ -9,8 +9,13 @@ defmodule TemplateEngine do
 
   defp evaluate_match( "\\{", _value_name, _map ), do: "{"
   defp evaluate_match( <<"{{{"::utf8, _something::binary>>, value_name, map ) do
-    dig( map, split_and_unescape( value_name, "", [] ) )
+    dig( map, split_and_unescape( value_name, "", [] ) ) 
+    |> to_representation
   end
+
+  defp to_representation( value ) when is_binary( value ), do: ~s("#{value}")
+  defp to_representation( value ) when is_nil( value ), do: "null"
+  defp to_representation( value ), do: to_string( value )
 
   def split_and_unescape( string ), do: split_and_unescape( string, "", [] )
   defp split_and_unescape( "", "", acc ), do: Enum.reverse( acc )
@@ -28,21 +33,21 @@ defmodule TemplateEngine do
   end
 
 
-  defp dig( map, [] ), do: to_string( map )
+  defp dig( map, [] ), do: map
   defp dig( map, _value_name_list = [h|t] ) when is_map( map ) do
     case Map.fetch( map, h ) do
-      { :ok, nil } -> "null"
+      { :ok, nil } -> nil
       { :ok, val } -> dig( val, t )
-      :error -> "null"
+      :error -> nil
     end
   end
   defp dig( map, _value_name_list = [h|t] ) when is_list( map ) do
     case Enum.fetch( map, String.to_integer( h ) ) do
-      { :ok, nil } -> "null"
+      { :ok, nil } -> nil
       { :ok, val } -> dig( val, t )
-      :error -> "null"
+      :error -> nil
     end
   end
-  defp dig( _map, _value_name_list ), do: "null"
+  defp dig( _map, _value_name_list ), do: nil
 
 end
