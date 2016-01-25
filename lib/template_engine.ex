@@ -10,12 +10,12 @@ defmodule TemplateEngine do
   defp evaluate_match( "\\{", _value_name, _map ), do: "{"
   defp evaluate_match( <<"{{{"::utf8, _something::binary>>, value_name, map ) do
     dig( map, split_and_unescape( value_name, "", [] ) ) 
-    |> to_representation
+    |> represent
   end
 
-  defp to_representation( value ) when is_binary( value ), do: ~s("#{value}")
-  defp to_representation( value ) when is_nil( value ), do: "null"
-  defp to_representation( value ), do: to_string( value )
+  defp represent( value ) when is_binary( value ), do: ~s("#{value}")
+  defp represent( value ) when is_nil( value ), do: "null"
+  defp represent( value ), do: to_string( value )
 
   def split_and_unescape( string ), do: split_and_unescape( string, "", [] )
   defp split_and_unescape( "", "", acc ), do: Enum.reverse( acc )
