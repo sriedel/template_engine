@@ -1,17 +1,36 @@
 defmodule TemplateEngine do
   def evaluate( string, map ) do
-    Regex.replace( ~r/(?:\\{|{{{(.*?)}}})/, 
-                   string, 
-                   fn match, value_name -> 
-                     evaluate_match( match, value_name, map ) 
-                   end )
+    evaluate( string, map, "" )
   end
 
-  defp evaluate_match( "\\{", _value_name, _map ), do: "{"
-  defp evaluate_match( <<"{{{"::utf8, _something::binary>>, value_name, map ) do
-    dig( map, split_and_unescape( value_name, "", [] ) ) 
-    |> represent
+  defp evaluate( "", _map, output ), do: output |> String.reverse
+  defp evaluate( <<"\\{"::utf8, string::binary>>, map, output ) do
+    evaluate( string, map, <<"{"::utf8, output::binary>> )
   end
+  defp evaluate( <<"{{{"::utf8, string::binary>>, map, output ) do
+    evaluate( string, map, output, "" ) 
+  end
+  defp evaluate( <<char::utf8, string::binary>>, map, output ) do
+    evaluate( string, map, <<char::utf8, output::binary>> )
+  end
+  defp evaluate( "", _map, output, value_name ) do
+    String.reverse( output ) <> "{{{" <> String.reverse( value_name )
+  end
+  defp evaluate( <<"\\{"::utf8, string::binary>>, map, output, value_name ) do
+    evaluate( string, map, output, "{" <> value_name )
+  end
+  defp evaluate( <<"}}}"::utf8, string::binary>>, map, output, value_name ) do
+    value_path = value_name 
+                 |> String.reverse
+                 |> split_and_unescape( "", [] )
+    value = dig( map, value_path )
+            |> represent
+    evaluate( string, map, String.reverse( value ) <> output )
+  end
+  defp evaluate( <<char::utf8, string::binary>>, map, output, value_name ) do
+    evaluate( string, map, output, <<char::utf8, value_name::binary>> )
+  end
+
 
   defp represent( value ) when is_binary( value ), do: ~s("#{value}")
   defp represent( value ) when is_nil( value ), do: "null"
