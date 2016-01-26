@@ -1,4 +1,26 @@
 defmodule TemplateEngine do
+  use GenServer
+ 
+  # client interface
+  def start_link( opts \\ [] ) do
+    GenServer.start_link( __MODULE__, :ok, opts )
+  end
+
+  def render( server, template, map ) do
+    GenServer.call( server, { :render, template, map } )
+  end
+
+  def stop( server ), do: GenServer.stop( server )
+
+  # server callbacks
+  def init( :ok ), do: { :ok, nil }
+
+  def handle_call( {:render, template, map}, from, state ) do
+    reply = evaluate( template, map ) 
+    { :reply, reply, state }
+  end
+
+  # functionality
   def evaluate( string, map ) do
     evaluate( string, map, "" )
   end
