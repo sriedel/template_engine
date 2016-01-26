@@ -3,12 +3,12 @@ defmodule TemplateEngineServerSpec do
   import TemplateEngine
 
   it "should start up, render and shut down" do
-    {:ok, pid} = TemplateEngine.start_link
+    {:ok, pid} = start_link
 
-    TemplateEngine.render( pid, "{{{foo}}}", %{ "foo" => "bar" } )
+    render( pid, "{{{foo}}}", %{ "foo" => "bar" } )
     |> should( eq "\"bar\"" )
 
-    TemplateEngine.stop( pid ) |> should( eq :ok )
+    stop( pid ) |> should( eq :ok )
   end
 end
 

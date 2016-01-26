@@ -15,7 +15,7 @@ defmodule TemplateEngine do
   # server callbacks
   def init( :ok ), do: { :ok, nil }
 
-  def handle_call( {:render, template, map}, from, state ) do
+  def handle_call( {:render, template, map}, _from, state ) do
     reply = evaluate( template, map ) 
     { :reply, reply, state }
   end
